@@ -1,10 +1,10 @@
-```
+---
 layout: post
 title: kafka network
-subtitle: Each post also has a subtitle
+subtitle: kafka netwok
 categories: kafka
 tags: [kafka]
-```
+---
 
 ### 1. 前言
 
