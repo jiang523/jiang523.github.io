@@ -1,4 +1,4 @@
-```markdown
+```
 layout: post
 title: kafka network
 subtitle: Each post also has a subtitle
