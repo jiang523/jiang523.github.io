@@ -18,7 +18,7 @@ kafka网络模块的架构图如下:
 
 <img src="../images/network/1415006-20200905142355843-196935312.png" alt="1415006-20200905142355843-196935312" style="zoom: 25%;" />
 
-<img src="../images/network/kafka-network.jpeg" alt="kafka-network" style="zoom: 67%;" />
+<img src="https://jiang523.github.io/images/network/kafka-network.jpeg" alt="kafka-network" style="zoom: 67%;" />
 
 kafka network模块两个最重要的构成是Server Socket和KafkaRequestHandler
 
