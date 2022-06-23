@@ -2,7 +2,6 @@ LogSegment
 
 一个logsegment由以下文件构成:
 
-![image-20220113143333678](../images/LogSegment/image-20220113143333678.png)
 
 消息文件 :
 
