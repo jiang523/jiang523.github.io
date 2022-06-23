@@ -1,9 +1,9 @@
 ---
 layout: post
-title: Test markdown
+title: Kafka network
 subtitle: Each post also has a subtitle
-categories: markdown
-tags: [test]
+categories: Kafka
+tags: [kafka]
 ---
 
 
