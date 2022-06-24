@@ -10,8 +10,7 @@ tags: []
 
  ## 1. 进程的信息
  - [ ] 进程的结构
- 在Linux中，一切皆文件，进程也是保存在内存中的一个实例，下图描述了进程的结构:
-  ![进程的结构](https://img-blog.csdnimg.cn/63463e6745fc4b4bbbd6b0af24bdfbca.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAcXFfNDE3NjExNzY=,size_15,color_FFFFFF,t_70,g_se,x_16)
+ 在Linux中，一切皆文件，进程也是保存在内存中的一个实例，下图描述了进程的结构: ![image-20220624110006061](../images/2022-06-23-linux-fork/image-20220624110006061.png)
  - 堆栈:保存局部变量
  - 数据段:一般存放全局变量和静态变量
  - 代码段:存储进程的代码文件
