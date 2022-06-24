@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 进程的创建(fork)
-subtitle: Each post also has a subtitle
+subtitle:
 categories: Linux
 tags: []
 ---
