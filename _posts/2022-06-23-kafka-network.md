@@ -1,9 +1,9 @@
 ---
 layout: post
-title: Kafka network
-subtitle: Each post also has a subtitle
+title: Kafka Network
+subtitle: kafka请求处理模块分析
 categories: Kafka
-tags: [kafka]
+tags: [Kafka]
 ---
 
 
