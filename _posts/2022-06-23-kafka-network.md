@@ -1,7 +1,7 @@
 ---
 layout: post
-title: Kafka Network
-subtitle: kafka请求处理模块分析
+title: Kafka请求处理模块
+subtitle:
 categories: Kafka
 tags: [Kafka]
 ---
