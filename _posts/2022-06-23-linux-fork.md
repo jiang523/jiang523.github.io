@@ -1,7 +1,7 @@
 ---
 layout: post
-title: 进程的创建(fork)
-subtitle:
+title: Linux进程的创建
+subtitle:fork函数分析
 categories: Linux
 tags: []
 ---
@@ -501,7 +501,7 @@ for(;;) pause();
 static inline _syscall0(int,pause)
 ```
 
-啊这。。又是这玩意，看到这里立马就懂了,pause()函数也是一个系统调用,省去中间系统调用的过程，直接来到pause调用的函数:
+看到这里立马就懂了,pause()函数也是一个系统调用,省去中间系统调用的过程，直接来到pause调用的函数:
 
 ```c
 int sys_pause(void)
@@ -531,7 +531,7 @@ if (!fork()) {
 }
 for(;;) pause();
 ```
-看到这你可能有点懵逼了，怎么又到这来了，0号进程不是已经执行过一次了吗，又来。。
+看到这你可能有点懵，怎么又到这来了，0号进程不是已经执行过一次了吗，又来。。
 
 但是和之前不同的是，这里的fork()返回的_res值是0，是符合if条件的，然后会执行init()。。
 
