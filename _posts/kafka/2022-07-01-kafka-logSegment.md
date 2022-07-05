@@ -18,7 +18,7 @@ kafka中，broker需要对生产者的消息做持久化，将消息以文件的
 2. .index文件，存储了消息的位移索引
 3. .timeindex文件，存储了消息的时间戳索引
 
-![image](../../images/2022-07-01-kafka-logSegment/69e4b0a6.png)
+![image](https://jiang523.github.io/images/2022-07-01-kafka-logSegment/69e4b0a6.png)
 
 每个文件名20位长度，文件名是这个LogSegment最小的offset值，也就是baseOffset值。消费消息时，会根据消费的offset值决定去哪个LogSegment文件中检索。
 
@@ -30,7 +30,7 @@ kafka中，broker需要对生产者的消息做持久化，将消息以文件的
 
 用一张图来展示消息的检索过程:
 
-![image-20220705161822052](../../images/2022-07-01-kafka-logSegment/image-20220705161822052.png)
+![image-20220705161822052](https://jiang523.github.io/images/2022-07-01-kafka-logSegment/image-20220705161822052.png)
 
 例如某个消费者要从offset=100来消费消息，会首先读取索引，定位到小于100的最大值也就是offset=92，而对应的position(物理地址)=4176,随后会从日志文件中读取4176长度后，继续往下读取，直到读取到offset=100。
 
