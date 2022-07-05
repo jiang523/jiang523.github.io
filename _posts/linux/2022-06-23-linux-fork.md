@@ -7,7 +7,9 @@ tags: [Linux]
 ---
 
  ## 1. 进程的信息
- - [ ] 进程的结构
+ ### 1.1 进程的结构
+
+
  在Linux中，一切皆文件，进程也是保存在内存中的一个实例，下图描述了进程的结构: ![image-20220624110006061](https://jiang523.github.io//images/2022-06-23-linux-fork/image-20220624110006061.png)
  - 堆栈:保存局部变量
  - 数据段:一般存放全局变量和静态变量
@@ -47,7 +49,7 @@ struct task_struct {
 
 通过管理进程对应的task_struct，可以完成进程的相关操作。
 
- - [ ] GDT和LDT
+ ### 1.2 GDT和LDT
 
 操作系统在保护模式下，内存管理分为分段模式和分页模式。分段模式下内存的寻址为「段基址:偏移地址」。对一个段的描述包括以下三个方面：【Base Address,Limit,Access】，他们加在一起被放在一个64bit长的数据结构中，被称为段描述符。因此需要用64bit的寄存器去存储段描述符，但是操作系统的段基址寄存器只能存储16bit的数据，因此无法直接存储64bit的段描述符，为了解决这个问题，操作系统将段描述符存放在一个全局的数组中，而段寄存器直接存储对应的段描述符对应的下标，这个全局的数组叫做GDT
 
@@ -63,29 +65,29 @@ struct task_struct {
    用一张图来诠释GDT和LDT的寻址过程:
    ![GDT和LDT](https://img-blog.csdnimg.cn/58db57f78f964a1ead83dc27601ebfb3.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAcXFfNDE3NjExNzY=,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center)
 
- - [ ] 进程的状态
+ ### 1.3 进程的状态
 
 
  进程一共有五种状态，分别是:
-- TASK_RUNNING 运行状态
+  1. TASK_RUNNING 运行状态
 
-  运行状态表示正在运行，只有这个状态的进程才能被执行
+     运行状态表示正在运行，只有这个状态的进程才能被执行
 
-- TASK_INTERRUPTIBLE 可中断睡眠状态
+  2. TASK_INTERRUPTIBLE 可中断睡眠状态
 
-  当一个进程处于可中断睡眠状态时，它不会占用cpu资源，但是它可以响应中断或者信号。如socket等待连接建立时，它是睡眠的，但是连接一旦建立就会被唤醒。这种状态就是阻塞状态。
+     当一个进程处于可中断睡眠状态时，它不会占用cpu资源，但是它可以响应中断或者信号。如socket等待连接建立时，它是睡眠的，但是连接一旦建立就会被唤醒。这种状态就是阻塞状态。
 
-- TASK_UNINTERRUPTIBLE  不可中断睡眠状态
+  3. TASK_UNINTERRUPTIBLE  不可中断睡眠状态
 
-和TASK_INTERRUPTIBLE不同，处于TASK_UNINTERRUPTIBLE状态的进程无法被中断或者信号唤醒，假设一个进程是TASK_UNINTERRUPTIBLE状态，你会惊奇的发现通过kill -9无法杀死该进程，因为它无法响应异步信号。这种状态很少见，一般发生在内核态程序中，如读取某个设备的文件，需要通过read系统调用通过驱动操作硬件设备读取，这个过程是无法被中断的。
+     和TASK_INTERRUPTIBLE不同，处于TASK_UNINTERRUPTIBLE状态的进程无法被中断或者信号唤醒，假设一个进程是TASK_UNINTERRUPTIBLE状态，你会惊奇的发现通过kill -9无法杀死该进        程，因为它无法响应异步信号。这种状态很少见，一般发生在内核态程序中，如读取某个设备的文件，需要通过read系统调用通过驱动操作硬件设备读取，这个过程是无法被中断的。
 
-- TASK_ZOMBIE  僵死状态
+  4. TASK_ZOMBIE  僵死状态
 
-  处于TASK_ZOMBIE状态的进程并不代表着进程已经被销毁，此时除了task_struct，进程占有的所有资源将被释放，之所以不释放task_struct是因为task_struct保存着一些统计信息，其父进程可能需要这些信息。
+     处于TASK_ZOMBIE状态的进程并不代表着进程已经被销毁，此时除了task_struct，进程占有的所有资源将被释放，之所以不释放task_struct是因为task_struct保存着一些统计信息，其父进程      可能需要这些信息。
 
-- TASK_STOPPED
+  5. TASK_STOPPED
 
-  不保留task_struct，进程资源全部被释放
+     不保留task_struct，进程资源全部被释放
  ## 2. 系统初始化——main函数
  上面大致介绍了和进程相关的一些信息说明，本节将从kernel的main.c方法开始，分析进程的创建过程.
 
@@ -186,7 +188,7 @@ struct task_struct * task[NR_TASKS] = {&(init_task.task), }
 
 再回到sched_init()的代码，首先定义了一个desc_struct指针，然后为0号进程设置了它的ldt段和tss段，ldt段是由数据段和代码段构成的。然后从1开始遍历task数组，将每个槽设置为null，并将其gdt设置为空，由于是从1开始遍历，因此处于index=0的0号进程不会被置空。可见，sched_init()函数创建了0号进程。
 
-## 3. 进程的创建——fork()函数
+## 3.fork()函数
 
 进行一系列初始化后，执行了这句代码:
 ```c
