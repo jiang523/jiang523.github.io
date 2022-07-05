@@ -6,8 +6,9 @@ categories: Linux
 tags: [Linux]
 ---
 
- ## 1. 进程的信息
- ### 1.1 进程的结构
+ ##  1. 进程的信息
+ 
+ ###  1.1 进程的结构
 
 
  在Linux中，一切皆文件，进程也是保存在内存中的一个实例，下图描述了进程的结构: ![image-20220624110006061](https://jiang523.github.io//images/2022-06-23-linux-fork/image-20220624110006061.png)
@@ -88,7 +89,7 @@ struct task_struct {
   5. TASK_STOPPED
 
      不保留task_struct，进程资源全部被释放
- ## 2. 系统初始化——main函数
+ ##  2. 系统初始化——main函数
  上面大致介绍了和进程相关的一些信息说明，本节将从kernel的main.c方法开始，分析进程的创建过程.
 
 Linux的main.c文件，是Linux开机时内核初始化函数，在初始化的过程中，内核将创建系统的第一个进程:0号进程，0号进程不做任何操作，也不能被终止(除非系统异常或者关机),以后创建的每一个进程都是0号进程的子孙进程。
@@ -188,7 +189,7 @@ struct task_struct * task[NR_TASKS] = {&(init_task.task), }
 
 再回到sched_init()的代码，首先定义了一个desc_struct指针，然后为0号进程设置了它的ldt段和tss段，ldt段是由数据段和代码段构成的。然后从1开始遍历task数组，将每个槽设置为null，并将其gdt设置为空，由于是从1开始遍历，因此处于index=0的0号进程不会被置空。可见，sched_init()函数创建了0号进程。
 
-## 3.fork()函数
+##  3.fork()函数
 
 进行一系列初始化后，执行了这句代码:
 ```c
