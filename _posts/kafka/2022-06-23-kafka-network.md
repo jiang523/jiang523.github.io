@@ -16,7 +16,7 @@ kafka高性能、高吞吐量的背后和broker端优秀的网络模块设计密
 
 kafka网络模块的架构图如下:
 
-<img src="../images/network/1415006-20200905142355843-196935312.png" alt="1415006-20200905142355843-196935312" style="zoom: 25%;" />
+<img src="https://jiang523.github.io//images/network/1415006-20200905142355843-196935312.png" alt="1415006-20200905142355843-196935312" style="zoom: 25%;" />
 
 <img src="https://jiang523.github.io/images/network/kafka-network.jpeg" alt="kafka-network" style="zoom: 67%;" />
 
