@@ -1,9 +1,9 @@
 ---
 layout: post
-title: Linux进程的创建
-subtitle:fork函数分析
+title: 进程的创建
+subtitle: fork函数
 categories: Linux
-tags: []
+tags: [Linux]
 ---
 
  ## 1. 进程的信息
