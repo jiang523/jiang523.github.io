@@ -18,7 +18,7 @@ kafka中，broker需要对生产者的消息做持久化，将消息以文件的
 2. .index文件，存储了消息的位移索引
 3. .timeindex文件，存储了消息的时间戳索引
 
-![image](https://jiang523.github.io/images/2022-07-01-kafka-logSegment/69e4b0a6.png)
+![image-20220728144057296](../../images/2022-07-01-kafka-logSegment/image-20220728144057296.png)
 
 每个文件名20位长度，文件名是这个LogSegment最小的offset值，也就是baseOffset值。消费消息时，会根据消费的offset值决定去哪个LogSegment文件中检索。
 
@@ -30,15 +30,118 @@ kafka中，broker需要对生产者的消息做持久化，将消息以文件的
 
 用一张图来展示消息的检索过程:
 
-![image-20220705161822052](https://jiang523.github.io/images/2022-07-01-kafka-logSegment/image-20220705161822052.png)
+<img src="../../images/2022-07-01-kafka-logSegment/image-20220705161822052.png" alt="image-20220705161822052" style="zoom:50%;" />
 
-例如某个消费者要从offset=100来消费消息，会首先读取索引，定位到小于100的最大值也就是offset=92，而对应的position(物理地址)=4176,随后会从日志文件中读取4176长度后，继续往下读取，直到读取到offset=100。
+例如某个消费者要从offset=100来消费消息，会首先读取索引，用二分法定位到小于100的最大值也就是offset=92，而对应的position(物理地址)=4176,随后会从日志文件中读取4176长度后，继续往下读取，直到读取到offset=100。
 
 
 
-在源码中，kafka用ConcurrentSkipListMap跳表来组织索引。
+### 2. append
 
-### 2. 页缓存
+在LogSegment.scala中，用append方法来将消息写到日志:
+
+```scala
+def append(largestOffset: Long,
+             largestTimestamp: Long,
+             shallowOffsetOfMaxTimestamp: Long,
+             records: MemoryRecords): Unit = {
+    if (records.sizeInBytes > 0) {
+      val physicalPosition = log.sizeInBytes()
+      if (physicalPosition == 0)
+        rollingBasedTimestamp = Some(largestTimestamp)
+      	ensureOffsetInRange(largestOffset)
+
+      	// append the messages
+      	val appendedBytes = log.append(records)
+
+        if (largestTimestamp > maxTimestampSoFar) {
+          maxTimestampSoFar = largestTimestamp
+          offsetOfMaxTimestampSoFar =shallowOffsetOfMaxTimestamp
+        }
+        if (bytesSinceLastIndexEntry > indexIntervalBytes) {
+          offsetIndex.append(largestOffset, physicalPosition)
+          timeIndex.maybeAppend(maxTimestampSoFar, offsetOfMaxTimestampSoFar)
+          bytesSinceLastIndexEntry = 0
+        }
+        bytesSinceLastIndexEntry += records.sizeInBytes
+      }
+  }
+```
+
+大概总结一下这个方法:
+
+1. 通过ensureOffsetInRange方法来判断位移索引是否合法
+2. 调用log.append将消息写到页缓存
+
+```scala
+public int append(MemoryRecords records) throws IOException {
+  if (records.sizeInBytes() > Integer.MAX_VALUE - size.get())
+  throw new IllegalArgumentException("...");
+  int written = records.writeFullyTo(channel);
+  size.getAndAdd(written);
+  return written;
+}
+```
+
+这部分是将消息写到FileChannel的ByteBuffer中。FileChannel是一个java的NioChannel，可以大幅度提高文件的读写效率。
+
+3. 如果需要，则新增位移索引和时间戳索引项，而添加索引的append方法，实现也很简单
+
+   ```scala
+   def append(offset: Long, position: Int): Unit = {
+       inLock(lock) {
+         if (_entries == 0 || offset > _lastOffset) {
+           mmap.putInt(relativeOffset(offset))
+           mmap.putInt(position)
+           _entries += 1
+           _lastOffset = offset
+           require(_entries * entrySize == mmap.position(), s"$entries entries but file position in index is ${mmap.position()}.")
+         } else {
+           ...
+         }
+       }
+     }
+   ```
+
+   就是用mmap将相对位移和物理位置写到索引文件。
+
+### 3. Read
+
+```scala
+def read(startOffset: Long,
+           maxSize: Int,
+           maxPosition: Long = size,
+           minOneMessage: Boolean = false): FetchDataInfo = {
+    if (maxSize < 0)
+      throw new IllegalArgumentException(s"Invalid max size $maxSize for log read from segment $log")
+
+    val startOffsetAndSize = translateOffset(startOffset)
+
+    // if the start position is already off the end of the log, return null
+    if (startOffsetAndSize == null)
+      return null
+
+    val startPosition = startOffsetAndSize.position
+    val offsetMetadata = LogOffsetMetadata(startOffset, this.baseOffset, startPosition)
+
+    val adjustedMaxSize =
+      if (minOneMessage) math.max(maxSize, startOffsetAndSize.size)
+      else maxSize
+
+    // return a log segment but with zero size in the case below
+    if (adjustedMaxSize == 0)
+      return FetchDataInfo(offsetMetadata, MemoryRecords.EMPTY)
+
+    // calculate the length of the message set to read based on whether or not they gave us a maxOffset
+    val fetchSize: Int = min((maxPosition - startPosition).toInt, adjustedMaxSize)
+
+    FetchDataInfo(offsetMetadata, log.slice(startPosition, fetchSize),
+      firstEntryIncomplete = adjustedMaxSize < startOffsetAndSize.size)
+```
+
+
+
+### 4. 页缓存
 
 在操作系统中，文件是以物理页的形式存储在磁盘上的，当一个进程去读取一个文件的内容时，也是按页读取，会读取页目录，然后找到页表，再通过页表将对应的物理页加载到内存中。而操作系统提供了页缓存来提高这个过程的效率。
 
@@ -67,7 +170,9 @@ Linux运用LRU算法实现对页缓存的淘汰策略，页缓存的容量是有
 
 但是如果某些consumer消费存在很高的延时，它们来消费时，如果PageCache的空间不足，很可能他们要消费的数据页缓存已经被淘汰了，只能触发磁盘io去磁盘读取，随后Linux会将读取到的数据加到页缓存，由于LRU的机制，其他实时消费的页缓存会被淘汰，造成其他实时消费的consumer被迫去
 
-### 4. 零拷贝
+### 5. 零拷贝
 
-### 5. 二分法查找
+
+
+### 6. 二分法查找
 
