@@ -33,7 +33,7 @@ tags: [java]
 
 1. 串行
 
-<img src="../../images/2022-08-30-java-CompletableFuture/image-20220831161444428.png" alt="image-20220831161444428" style="zoom:50%;" />
+<img src="https://jiang523.github.io//images/2022-08-30-java-CompletableFuture/image-20220831161444428.png" alt="image-20220831161444428" style="zoom:50%;" />
 
 串行执行是最简单的方式，但是性能最差，因为step1和step2其实可以并行执行，等这两步都执行完了，再执行step3。
 
@@ -41,7 +41,7 @@ tags: [java]
 
 2. Future + CountDownLatch
 
-<img src="../../images/2022-08-30-java-CompletableFuture/image-20220831162553998.png" alt="image-20220831162553998" style="zoom:50%;" />
+<img src="https://jiang523.github.io/images/2022-08-30-java-CompletableFuture/image-20220831162553998.png" alt="image-20220831162553998" style="zoom:50%;" />
 
 获取Future的执行结果需要通过get()方法，这个方法会阻塞当前线程，效率比较低。
 
@@ -51,7 +51,7 @@ tags: [java]
 
 我们可以通过一些第三方对Future的拓展来实现，如Google Guava的ListenableFutureTask:
 
-<img src="../../images/2022-08-30-java-CompletableFuture/image-20220831163712948.png" alt="image-20220831163712948" style="zoom:50%;" />
+<img src="https://jiang523.github.io/images/2022-08-30-java-CompletableFuture/image-20220831163712948.png" alt="image-20220831163712948" style="zoom:50%;" />
 
 这种方式可以不用显示的调用Future的get方法来阻塞式的获取任务结果，而是任务执行完成以后通过回调函数自动触发。但与此同时，如果任务依赖很复杂，将会需要写很多的回调函数，造成臭名昭著的"回调地狱"
 
@@ -63,13 +63,13 @@ tags: [java]
 
 前面对比了几种实现任务编排的方式，但功能上都有很明显的缺陷和不足，并且都不够优雅。JDK8为提供了一款强大的异步任务的编排工具CompletableFuture,它让异步任务的处理变得十分简单和优雅，上面的例子，用CompletableFuture可以这样实现:
 
-<img src="../../images/2022-08-30-java-CompletableFuture/image-20220831164954092.png" alt="image-20220831164954092" style="zoom:50%;" />
+<img src="https://jiang523.github.io/images/2022-08-30-java-CompletableFuture/image-20220831164954092.png" alt="image-20220831164954092" style="zoom:50%;" />
 
 是不是非常简单和优雅?
 
 
 
-<img src="../../images/2022-08-30-java-CompletableFuture/75a9710d2053b2fa0654c67cd7f35a0c18774.png" alt="图4 CompletableFuture的定义" style="zoom:50%;" />
+<img src="https://jiang523.github.io/images/2022-08-30-java-CompletableFuture/75a9710d2053b2fa0654c67cd7f35a0c18774.png" alt="图4 CompletableFuture的定义" style="zoom:50%;" />
 
 CompletableFuture实现了Future和CompletionStage两个接口，它既延续了Future的特性，也具备了CompletionStage里所有的特性。下面我们就主要的方法出发，看看CompletableFuture应该如何使用。
 
@@ -94,7 +94,7 @@ CompletableFuture里大量使用了java的函数式编程接口，为了能更�
 
 CompletableFuture的完整处理可以分为三个步骤: 创建CompletableFuture、任务编排、处理执行结果
 
-![image-20220905111921358](../../images/2022-08-30-java-CompletableFuture/image-20220905111921358.png)
+![image-20220905111921358](../../images/2022-08-30-java-CompletableFuture/image-20220905111921358-2634751.png)
 
 下面根据这三个步骤分类，详细介绍CompletableFuture的用法。
 
@@ -216,7 +216,7 @@ CompletableFuture的完整处理可以分为三个步骤: 创建CompletableFutur
 
 ​	  
 
-![image-20220905114755994](../../images/2022-08-30-java-CompletableFuture/image-20220905114755994.png)				
+![image-20220905114755994](../../images/2022-08-30-java-CompletableFuture/image-20220905114755994-2634758.png)				
 
 这里主要介绍这三个分类的十个方法，这十个方法都是同步方法，每个方法都有与之对应的以Async结尾的异步方法。并且每个分类的各个方法作用其实都是类似的，需要在于传入的参数类型，有的是函数式参数，而有的是Runnable，可以根据处理依赖时不同的需求来选择相应的方法。
 
@@ -424,7 +424,7 @@ public static void sleep(int seconds){
 
 这是一段非常简单的CompletableFuture的运用，按照thenCombine的实现，正常控制台应该打印最终的合并结果，然后这段代码运行之后并没有打印合并结果
 
-![image-20220908172756319](../../images/2022-08-30-java-CompletableFuture/image-20220908172756319.png)
+![image-20220908172756319](../../images/2022-08-30-java-CompletableFuture/image-20220908172756319-2634764.png)
 
 笔者最开始碰到这种情况时，百思不得其解，thenCombin不是同步的方法吗，两个task执行完毕以后，应该会打印合并结果。
 
@@ -462,7 +462,7 @@ public static void sleep(int seconds){
 
 浏览器访问，控制台输出的结果:
 
-![image-20220908183748601](../../images/2022-08-30-java-CompletableFuture/image-20220908183748601.png)
+![image-20220908183748601](../../images/2022-08-30-java-CompletableFuture/image-20220908183748601-2634768.png)
 
 可以看到thenCombine里的打印结果输出来了，并且是有ForkJoinPool里的线程执行的，验证了我们的猜想。
 
@@ -470,7 +470,7 @@ public static void sleep(int seconds){
 
 现在换个方式，我在thenCombine之前将主线程sleep 2s，确保thenCombine执行的时候两个task都已经执行完成,这个时候控制台输出的是:
 
-![image-20220908184209559](../../images/2022-08-30-java-CompletableFuture/image-20220908184209559.png)
+![image-20220908184209559](../../images/2022-08-30-java-CompletableFuture/image-20220908184209559-2634772.png)
 
 可以看到，combine的结果是正常的，而执行combine的线程变成了一个http-nio线程，这其实是tomcat里的一个线程，也就是运行这个controller的主线程。
 
@@ -521,6 +521,6 @@ public String getCombineInfo() {
 
 输出的结果:
 
-![image-20220908185125867](../../images/2022-08-30-java-CompletableFuture/image-20220908185125867.png)
+![image-20220908185125867](https://jiang523.github.io/images/2022-08-30-java-CompletableFuture/image-20220908185125867-2634777.png)
 
 结果符合我们的猜想，由于cf3是最后一个执行完的，所以最终的accept操作由cf3所在的线程执行。
