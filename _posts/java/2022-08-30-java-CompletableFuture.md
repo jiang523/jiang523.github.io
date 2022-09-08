@@ -470,7 +470,7 @@ public static void sleep(int seconds){
 
 现在换个方式，我在thenCombine之前将主线程sleep 2s，确保thenCombine执行的时候两个task都已经执行完成,这个时候控制台输出的是:
 
-![image-20220908184209559](../../images/2022-08-30-java-CompletableFuture/image-20220908184209559-2634772.png)
+![image-20220908184209559](https://jiang523.github.io/images/2022-08-30-java-CompletableFuture/image-20220908184209559-2634772.png)
 
 可以看到，combine的结果是正常的，而执行combine的线程变成了一个http-nio线程，这其实是tomcat里的一个线程，也就是运行这个controller的主线程。
 
