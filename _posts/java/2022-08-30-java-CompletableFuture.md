@@ -94,7 +94,7 @@ CompletableFuture里大量使用了java的函数式编程接口，为了能更�
 
 CompletableFuture的完整处理可以分为三个步骤: 创建CompletableFuture、任务编排、处理执行结果
 
-![image-20220905111921358](../../images/2022-08-30-java-CompletableFuture/image-20220905111921358-2634751.png)
+![image-20220905111921358](../../images/2022-08-30-java-CompletableFuture/image-20220905111921358-2634751-2704887.png)
 
 下面根据这三个步骤分类，详细介绍CompletableFuture的用法。
 
